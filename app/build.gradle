@@ -1,0 +1,53 @@
+import java.util.function.BiConsumer
+
+plugins {
+    id "com.jfrog.bintray" version "1.0"
+}
+apply plugin: 'groovy'
+apply plugin: 'maven'
+apply plugin: 'java'
+
+allprojects {
+    repositories {
+        jcenter()
+        google()
+    }
+}
+
+dependencies {
+    implementation gradleApi()
+    implementation localGroovy()
+    implementation "com.android.tools.build:gradle:3.5.0"
+}
+
+def group = 'com.super.plugin'
+def version = '1.0.0'
+def artifactId = 'checkImagePlugin'
+
+uploadArchives {
+    println("根目录 ${rootDir.absolutePath}")
+    repositories {
+        mavenDeployer {
+            pom.groupId = group
+            pom.version = version
+            pom.artifactId = artifactId
+            //生成文件的地址(本地路径)
+            repository(url: uri('../repos'))
+        }
+    }
+}
+
+
+bintray {
+    def keyFile = new File(System.getenv("HOME"), "gradleKey.properties")
+    Properties properties = new Properties()
+    properties.load(keyFile.newInputStream())
+    user = properties.get("BINTRAY_USER")
+    key = properties.get('BINTRAY_KEY')
+    pkg {
+        repo = 'genericPlugin'
+        name = 'com.image.plugin'
+        licenses = ['Apache-2.0']
+        vcsUrl = ''
+    }
+}
