@@ -1,0 +1,76 @@
+apply plugin: 'maven'
+apply plugin: 'com.jfrog.bintray'
+
+def siteUrl = 'https://github.com/wu781521512/GradlePlugin'
+def gitUrl = 'https://github.com/wu781521512/GradlePlugin.git'
+group = 'com.super.plugin'
+version = '1.0.0'
+//artifact = 'checkImagePlugin'
+
+install {
+    repositories.mavenInstaller {
+        pom {
+            project {
+                packaging 'jar'
+                name 'checkBigImagePlugin'
+                url siteUrl
+
+                licenses {
+                    license {
+                        name 'Apache-2.0'
+                        url 'https://opensource.org/licenses/Apache-2.0'
+                    }
+                }
+
+//                developers {
+//                    developer {
+//                        id properties.getProperty("JCENTER_ID")
+//                        name properties.getProperty("JCENTER_NAME")
+//                        email properties.getProperty("JCENTER_EMAIL")
+//                    }
+//                }
+
+                scm {
+                    connection gitUrl
+                    developerConnection gitUrl
+                    url siteUrl
+                }
+            }
+        }
+    }
+}
+
+task sourcesJar(type: Jar) {
+    println(archiveClassifier.get())
+    archiveClassifier.set('sources')
+    from sourceSets.main.java.srcDirs
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    archiveClassifier.set('javadoc')
+    from javadoc.destinationDir
+}
+
+artifacts {
+    archives javadocJar
+    archives sourcesJar
+}
+
+bintray {
+    def keyFile = new File(System.getenv("HOME"), "gradleKey.properties")
+    Properties properties = new Properties()
+    properties.load(keyFile.newInputStream())
+    user = properties.getProperty("BINTRAY_USER")
+    key = properties.getProperty("BINTRAY_KEY")
+    println("$keyFile $user  $key")
+    configurations = ['archives']
+    pkg {
+        userOrg = "superplugin"
+        repo = "GradlePlugin"
+        name = "checkBigImagePlugin"
+        websiteUrl = siteUrl
+        vcsUrl = gitUrl
+        licenses = ["Apache-2.0"]
+        publish = true
+    }
+}
